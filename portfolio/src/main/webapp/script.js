@@ -12,17 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Adds a random greeting to the page.
- */
-function addRandomGreeting() {
+function addRandomGreeting() 
+{
   const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
+      ['Hello world!', 'This is my first Javascript function.', 'Surprise meme!'];
 
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+  // Increment greeting number
+  const greetingNum = Math.floor(Math.random() * greetings.length);
+  const greeting = greetings[greetingNum];
 
   // Add it to the page.
   const greetingContainer = document.getElementById('greeting-container');
   greetingContainer.innerText = greeting;
+  if (greetingNum == 2)
+  {
+    show_meme();
+  }
+  else
+  {
+    remove_meme();
+  }
+}
+
+function show_meme() 
+{
+    var img = document.createElement('img');
+    img.src = '/images/honest code.jpg';
+    img.style = 'width:50%;height:50%;text-align = center';
+    img.alt = 'Honest code.';
+    img.id = 'Meme'
+
+    document.body.appendChild(img);
+}
+
+function remove_meme()
+{
+    var image = document.getElementById('Meme');
+    if (image !== null)
+    {
+        image.parentNode.removeChild(image);
+    }
 }
