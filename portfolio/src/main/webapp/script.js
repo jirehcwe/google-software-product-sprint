@@ -36,6 +36,12 @@ function addRandomGreeting()
 
 function show_meme() 
 {
+    //Prevents extra memes being created.
+    if (document.getElementById('Meme') !== null)
+    {
+        return;
+    }
+
     var img = document.createElement('img');
     img.src = '/images/honest code.jpg';
     img.style = 'width:50%;height:50%;text-align = center';
