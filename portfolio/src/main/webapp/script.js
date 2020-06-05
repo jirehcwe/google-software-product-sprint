@@ -11,30 +11,32 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+const MEME_ID = 'Meme';
 
 function addRandomGreeting() 
 {
   const greetings =
       ['Hello world!', 'This is my first Javascript function.', 'Surprise meme!'];
 
-  // Increment greeting number
+  // Choose a random greeting
   const greetingNum = Math.floor(Math.random() * greetings.length);
-  const greeting = greetings[greetingNum];
 
   // Add it to the page.
   const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
+  greetingContainer.innerText = greetings[greetingNum];
+
+  //Show random meme if the 2nd index is hit.
   if (greetingNum == 2)
   {
-    show_meme();
+    showMeme();
   }
   else
   {
-    remove_meme();
+    removeMeme();
   }
 }
 
-function show_meme() 
+function showMeme() 
 {
     //Prevents extra memes being created.
     if (document.getElementById('Meme') !== null)
@@ -44,16 +46,19 @@ function show_meme()
 
     var img = document.createElement('img');
     img.src = '/images/honest code.jpg';
-    img.style = 'width:50%;height:50%;text-align = center';
+    img.style = 'text-align = center';
     img.alt = 'Honest code.';
-    img.id = 'Meme'
+    img.id = MEME_ID;
 
-    document.body.appendChild(img);
+    var content = document.getElementById('content');
+    content.appendChild(img);
+    
+    window.scrollTo(0,document.body.scrollHeight);
 }
 
-function remove_meme()
+function removeMeme()
 {
-    var image = document.getElementById('Meme');
+    var image = document.getElementById(MEME_ID);
     if (image !== null)
     {
         image.parentNode.removeChild(image);
