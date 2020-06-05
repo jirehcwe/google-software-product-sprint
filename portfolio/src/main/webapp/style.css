@@ -7,3 +7,12 @@
 #greeting-container {
   margin-top: 20px;
 }
+
+p {
+  text-align: justify;
+}
+
+img {
+  max-width: 450px;
+  max-height: auto;
+}
