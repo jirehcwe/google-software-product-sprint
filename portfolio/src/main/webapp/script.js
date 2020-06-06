@@ -11,18 +11,56 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+const MEME_ID = 'Meme';
 
-/**
- * Adds a random greeting to the page.
- */
-function addRandomGreeting() {
+function addRandomGreeting() 
+{
   const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
+      ['Hello world!', 'This is my first Javascript function.', 'Surprise meme!'];
 
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+  // Choose a random greeting
+  const greetingNum = Math.floor(Math.random() * greetings.length);
 
   // Add it to the page.
   const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
+  greetingContainer.innerText = greetings[greetingNum];
+
+  //Show random meme if the 2nd index is hit.
+  if (greetingNum == 2)
+  {
+    showMeme();
+  }
+  else
+  {
+    removeMeme();
+  }
+}
+
+function showMeme() 
+{
+    //Prevents extra memes being created.
+    if (document.getElementById('Meme') !== null)
+    {
+        return;
+    }
+
+    var img = document.createElement('img');
+    img.src = '/images/honest code.jpg';
+    img.style = 'text-align = center';
+    img.alt = 'Honest code.';
+    img.id = MEME_ID;
+
+    var content = document.getElementById('content');
+    content.appendChild(img);
+    
+    window.scrollTo(0,document.body.scrollHeight);
+}
+
+function removeMeme()
+{
+    var image = document.getElementById(MEME_ID);
+    if (image !== null)
+    {
+        image.parentNode.removeChild(image);
+    }
 }
