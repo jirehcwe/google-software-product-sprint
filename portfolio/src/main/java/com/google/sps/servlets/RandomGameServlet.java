@@ -15,17 +15,34 @@
 package com.google.sps.servlets;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/data")
-public class DataServlet extends HttpServlet {
+@WebServlet("/random-game")
+public final class RandomGameServlet extends HttpServlet {
+
+    private List<String> games;
+
+  @Override
+  public void init() {
+    games = new ArrayList<>();
+    games.add("Legend of Zelda: Breath of the Wild");
+    games.add("Monster Hunter: World");
+    games.add("Animal Crossing: New Horizons");
+    games.add("Valorant");
+    games.add("Counter Strike: Global Offensive");
+    games.add("Super Smash Bros. Ultimate");    
+  }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String gameName = games.get((int) (Math.random() * games.size()));
+
     response.setContentType("text/html;");
-    response.getWriter().println("<h1>Hello Jireh!</h1>");
+    response.getWriter().println(gameName);
   }
 }

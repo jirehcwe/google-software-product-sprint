@@ -25,7 +25,7 @@ function addRandomGreeting()
   const greetingContainer = document.getElementById('greeting-container');
   greetingContainer.innerText = greetings[greetingNum];
 
-  //Show random meme if the 2nd index is hit.
+  // Show random meme if the 2nd index is hit.
   if (greetingNum == 2)
   {
     showMeme();
@@ -63,4 +63,18 @@ function removeMeme()
     {
         image.parentNode.removeChild(image);
     }
+}
+
+function getRandomGame()
+{
+    console.log('Fetching a random game.');
+
+    fetch('/random-game')
+    .then(response => response.text())
+    .then(gameName => addGameNameToDOM(gameName))
+}
+
+function addGameNameToDOM(gameName)
+{
+    document.getElementById('game-container').innerText = gameName;
 }
