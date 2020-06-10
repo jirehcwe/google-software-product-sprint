@@ -39,7 +39,7 @@ function addRandomGreeting()
 function showMeme() 
 {
     //Prevents extra memes being created.
-    if (document.getElementById('Meme') !== null)
+    if (document.getElementById(MEME_ID) !== null)
     {
         return;
     }
@@ -69,9 +69,13 @@ function getRandomGame()
 {
     console.log('Fetching a random game.');
 
+    addGameNameToDOM("Loading...");
+    
     fetch('/random-game')
     .then(response => response.text())
-    .then(gameName => addGameNameToDOM(gameName))
+    .then(gameName => addGameNameToDOM(gameName));
+
+    setTimeout(() => {  addGameNameToDOM(""); }, 3000);
 }
 
 function addGameNameToDOM(gameName)

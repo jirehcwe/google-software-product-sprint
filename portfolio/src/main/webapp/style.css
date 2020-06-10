@@ -8,6 +8,10 @@
   margin-top: 20px;
 }
 
+#game-container {
+  font-size: 40px;
+}
+
 p {
   text-align: justify;
 }
