@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/random-game")
 public final class RandomGameServlet extends HttpServlet {
 
-    private List<String> games;
+  private List<String> games;
 
   @Override
   public void init() {
@@ -42,7 +42,7 @@ public final class RandomGameServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String gameName = games.get((int) (Math.random() * games.size()));
 
-    response.setContentType("text/html;");
+    response.setContentType("text/plain;");
     response.getWriter().println(gameName);
   }
 }
