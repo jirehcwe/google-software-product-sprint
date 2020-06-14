@@ -84,21 +84,23 @@ function addGameNameToDOM(gameName)
 }
 
 function displayComments()
-{
-    console.log("LEL");
-
-  
+{  
   fetch('/comments')
   .then(response => response.json())
-  .then(commentObj => {
-
-    const commentsSection = document.getElementById('comments-section');
-    commentsSection.innerHTML = '';
-
-    commentObj.commentHistory.forEach((comment) => {
-      commentsSection.appendChild(createListElement(comment.commentText));
-    });
-        
+  .then(commentJson => {
+    if(commentJson.length != 0)
+    {
+      populateCommentSection(commentJson)
+    }
+    else
+    {
+      const commentsSection = document.getElementById('comments-section');
+      commentsSection.remove();
+      const commentContainer = document.getElementById('comments-container');
+      commentContainer.innerText = "No comments so far.";
+    }
+    
+    
   });
 
 }
@@ -107,4 +109,14 @@ function createListElement(text) {
   const liElement = document.createElement('li');
   liElement.innerText = text;
   return liElement;
+}
+
+function populateCommentSection(commentJson)
+{
+  const commentsSection = document.getElementById('comments-section');
+  commentsSection.innerHTML = '';
+
+  commentJson.forEach((comment) => {
+    commentsSection.appendChild(createListElement(comment.commentText));
+  });
 }
