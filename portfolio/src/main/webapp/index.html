@@ -39,8 +39,22 @@
         </p>
       <button onclick="getRandomGame()">Click here for a favourite game of mine!</button>
       <div id="game-container"></div>
-      <button onclick="getServerData()">Get Data</button>
-      <ul id="data-container"></ul>
+      
+      <div id="comments-form">
+        <form action="/comments" method = "POST">
+          <label for="commentText">Comment:</label><br>
+          <textarea id="commentText" name="commentText" placeholder="Comment goes here."></textarea>
+          <br>
+          <input type="submit" value="Comment!">
+          <br>
+        <form>
+      <div>
+      <div onload="displayComments">Comments here.
+        <ul id = "comments-section">
+        </ul>
+      </div>
+
+
       <button onclick="addRandomGreeting()">Hello</button>
       <div id="greeting-container"></div>
       
