@@ -83,23 +83,23 @@ function addGameNameToDOM(gameName)
     document.getElementById('game-container').innerText = gameName;
 }
 
-function getServerData()
+function displayComments()
 {
-    fetch('/data')
-    .then(response => response.json())
-    .then((stats) => {
+    console.log("LEL");
 
-    const dataContainerElement = document.getElementById('data-container');
-    dataContainerElement.innerHTML = '';
-    dataContainerElement.appendChild(
-        createListElement('Index 0: ' + stats[0]));
-    dataContainerElement.appendChild(
-        createListElement('Index 1: ' + stats[1]));
-    dataContainerElement.appendChild(
-        createListElement('Index 2: ' + stats[2]));
-        
+  
+  fetch('/comments')
+  .then(response => response.json())
+  .then(commentObj => {
+
+    const commentsSection = document.getElementById('comments-section');
+    commentsSection.innerHTML = '';
+
+    commentObj.commentHistory.forEach((comment) => {
+      commentsSection.appendChild(createListElement(comment.commentText));
     });
-
+        
+  });
 
 }
 
