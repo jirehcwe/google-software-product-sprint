@@ -41,7 +41,7 @@ public final class CommentsServlet extends HttpServlet {
     Entity commentEntity = new Entity("Comment");
     long timestamp = System.currentTimeMillis();
 
-    commentEntity.setProperty("commentText", getCommentFromForm(request));
+    commentEntity.setProperty("commentText", request.getParameter("commentText"));
     commentEntity.setProperty("timestamp", timestamp);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -74,8 +74,4 @@ public final class CommentsServlet extends HttpServlet {
     response.getWriter().println(gson.toJson(comments));
   }
 
-  private String getCommentFromForm(HttpServletRequest request)
-  {
-    return request.getParameter("commentText");
-  }
 }
