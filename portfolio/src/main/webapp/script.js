@@ -25,7 +25,7 @@ function addRandomGreeting()
   const greetingContainer = document.getElementById('greeting-container');
   greetingContainer.innerText = greetings[greetingNum];
 
-  //Show random meme if the 2nd index is hit.
+  // Show random meme if the 2nd index is hit.
   if (greetingNum == 2)
   {
     showMeme();
@@ -39,7 +39,7 @@ function addRandomGreeting()
 function showMeme() 
 {
     //Prevents extra memes being created.
-    if (document.getElementById('Meme') !== null)
+    if (document.getElementById(MEME_ID) !== null)
     {
         return;
     }
@@ -63,4 +63,60 @@ function removeMeme()
     {
         image.parentNode.removeChild(image);
     }
+}
+
+function getRandomGame()
+{
+    console.log('Fetching a random game.');
+
+    addGameNameToDOM("Loading...");
+    
+    fetch('/random-game')
+    .then(response => response.text())
+    .then(gameName => addGameNameToDOM(gameName));
+
+    setTimeout(() => {  addGameNameToDOM(""); }, 3000);
+}
+
+function addGameNameToDOM(gameName)
+{
+    document.getElementById('game-container').innerText = gameName;
+}
+
+function displayComments()
+{  
+  fetch('/comments')
+  .then(response => response.json())
+  .then(commentJson => {
+    if(commentJson.length != 0)
+    {
+      populateCommentSection(commentJson)
+    }
+    else
+    {
+      const commentsSection = document.getElementById('comments-section');
+      commentsSection.remove();
+      const commentContainer = document.getElementById('comments-container');
+      commentContainer.innerText = "No comments so far.";
+    }
+    
+    
+  });
+
+}
+
+function createListElement(text) {
+  const liElement = document.createElement('li');
+  liElement.innerText = text;
+  return liElement;
+}
+
+function populateCommentSection(commentJson)
+{
+  const commentsSection = document.getElementById('comments-section');
+  commentsSection.innerHTML = '';
+
+  commentJson.forEach((comment) => {
+    commentsSection.appendChild(createListElement(comment.commentText));
+  });
 }

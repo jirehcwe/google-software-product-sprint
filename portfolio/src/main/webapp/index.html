@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
   </head>
-  <body>
+  <body onload="displayComments()">
     <div id="content" style = "text-align: center">
       <h1>Jireh's Portfolio</h1>
       <p>I'm creating this website as part of SPS (Software Product Sprint) 2020, and this is my first time writing in HTML/CSS/Javascript.</p>
@@ -18,12 +18,15 @@
             It's meant to be an interactive lecture to teach new game developers how to make any game feel good.
             Feel free to try it by clicking the picture!
         </p>
-
-        <img src = "/images/TEKITU_whirlwind_ability.gif" alt="TEKITU Whirlwind Ability"></img>
+        <a href = "https://jirehcwe.wixsite.com/fractaldev/tekitu-1" target="_blank">
+            <img src = "/images/TEKITU_whirlwind_ability.gif" alt="TEKITU Whirlwind Ability"></img>
+        </a>
+        
         <p>
             This is another game called "TEKITU", which stands for "The Edgiest Kid in the Universe".
             I made this game with 2 artists and another programmer in about 3 months! 
-            This is one of the abilities of the main protagonist.
+            This is one of the abilities of the main protagonist. 
+            I have a demo video showing the first level! Check it out by clicking the gif.
         </p>
 
         <a href = "https://zenophobia.itch.io/vector" target="_blank">
@@ -34,9 +37,27 @@
             I'm the guy on the left, and my friend/project partner on the right. Try it out by clicking the picture. 
             Be warned, it's a fast-paced game that combines fast reaction time with puzzle/problem solving!
         </p>
+      <button onclick="getRandomGame()">Click here for a favourite game of mine!</button>
+      <div id="game-container"></div>
       
+      <div id="comments-form">
+        <form action="/comments" method = "POST">
+          <label for="commentText">What do you think of my website?</label><br>
+          <textarea id="commentText" name="commentText" placeholder="Comment goes here."></textarea>
+          <br>
+          <input type="submit" value="Comment!">
+          <br>
+        <form>
+      <div>
+      <div id="comments-container">
+        <ul id="comments-section">
+        </ul>
+      </div>
+
+
       <button onclick="addRandomGreeting()">Hello</button>
       <div id="greeting-container"></div>
+      
     </div>
   </body>
 </html>
