@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
   </head>
-  <body onload="displayComments()">
+  <body onload="displayPosts(); fetchBlobstoreUrlAndShowForm();">
     <div id="content" style = "text-align: center">
       <h1>Jireh's Portfolio</h1>
       <p>I'm creating this website as part of SPS (Software Product Sprint) 2020, and this is my first time writing in HTML/CSS/Javascript.</p>
@@ -41,22 +41,19 @@
       <div id="game-container"></div>
       
       <div id="comments-form">
-        <form action="/comments" method = "POST">
+        <form id="my-form" method = "POST" enctype="multipart/form-data">
           <label for="commentText">What do you think of my website?</label><br>
           <textarea id="commentText" name="commentText" placeholder="Comment goes here."></textarea>
           <br>
-          <input type="submit" value="Comment!">
+          <label for="image">Upload a cute doggo!</label><br>
+          <input type="file" name="image"></input><br>
+          <input type="submit" value="Comment!"><br>
           <br>
         <form>
-      <div>
-      <div id="comments-container">
-        <ul id="comments-section">
-        </ul>
       </div>
 
-
-      <button onclick="addRandomGreeting()">Hello</button>
-      <div id="greeting-container"></div>
+      <div>
+      <div id="posts-section">
       
     </div>
   </body>

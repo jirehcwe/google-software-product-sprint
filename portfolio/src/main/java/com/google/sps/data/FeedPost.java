@@ -10,7 +10,7 @@ public final class FeedPost {
   {
     commentText = inputComment;
     timeStamp = inputTimeStamp;
-  }*Feed
+  }
 
   public FeedPost(String inputComment, String imageLink, long inputTimeStamp)
   {
