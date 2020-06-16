@@ -33,9 +33,9 @@ public final class BlobstoreUploadServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-    String uploadUrl = blobstoreService.createUploadUrl("/submit-doggo");
+    String uploadUrl = blobstoreService.createUploadUrl("/doggo-servlet");
 
-    response.setContentType("text/plain");
+    response.setContentType("text/html");
     response.getWriter().println(uploadUrl);
   }
 }
