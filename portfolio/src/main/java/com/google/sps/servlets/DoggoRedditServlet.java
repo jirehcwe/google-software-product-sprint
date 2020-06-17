@@ -48,10 +48,10 @@ import java.io.PrintWriter;
 @WebServlet("/doggo-servlet")
 public final class DoggoRedditServlet extends HttpServlet {
 
-  final String COMMENT_TEXT = "commentText";
-  final String TIMESTAMP = "timestamp";
-  final String IMAGE_URL = "imageUrl";
-  final String FEED_POST = "FeedPost";
+  static final String COMMENT_TEXT = "commentText";
+  static final String TIMESTAMP = "timestamp";
+  static final String IMAGE_URL = "imageUrl";
+  static final String FEED_POST = "FeedPost";
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
