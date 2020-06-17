@@ -44,9 +44,7 @@ function displayPosts()
       const postsSection = document.getElementById('posts-section');
       postsSection.innerText = "No posts so far.";
     }
-
-    console.log(postJson);
-    
+   
     
   });
 
@@ -69,8 +67,8 @@ function createPostElement(postJson) {
   postHeader.appendChild(timestampDisplay);
 
   usernameDisplay.innerText = "user";
-  timestampDisplay.innerText = postJson.timeStamp;
-
+  const timestamp = new Date(postJson.timeStamp);
+  timestampDisplay.innerText = timestamp.toUTCString();
   const postContent = document.createElement("div");
   post.appendChild(postContent);
   const imageDisplay = document.createElement("img");
@@ -109,7 +107,6 @@ function populatePostsSection(postJson)
 }
 
 function fetchBlobstoreUrlAndShowForm() {
-  console.log("fetching blobstore url");
   fetch('/blobstore-image-upload')
       .then((response) => response.text())
       .then((imageUploadUrl) => {
