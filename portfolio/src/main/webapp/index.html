@@ -42,11 +42,14 @@
       
       <div id="comments-form">
         <form id="my-form" method = "POST" enctype="multipart/form-data">
-          <label for="commentText">What do you think of my website?</label><br>
+          <label for="image" required>Upload a cute doggo!</label><br>
+          <input type="file" name="image" required></input><br>
+          <label for="dogName" >What's this good boy's/girl's name?</label><br>
+          <input type="text" name="dogName"></input><br>
+          <label for="commentText">Describe the doggo you have uploaded.</label><br>
           <textarea id="commentText" name="commentText" placeholder="Comment goes here."></textarea>
           <br>
-          <label for="image">Upload a cute doggo!</label><br>
-          <input type="file" name="image"></input><br>
+          
           <input type="submit" value="Comment!"><br>
           <br>
         <form>
