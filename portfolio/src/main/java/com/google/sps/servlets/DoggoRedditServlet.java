@@ -52,6 +52,7 @@ public final class DoggoRedditServlet extends HttpServlet {
   static final String TIMESTAMP = "timestamp";
   static final String IMAGE_URL = "imageUrl";
   static final String FEED_POST = "FeedPost";
+  static final String DOG_NAME = "dogName";
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -60,6 +61,7 @@ public final class DoggoRedditServlet extends HttpServlet {
     long timestamp = System.currentTimeMillis();
     String uploadURL = getUploadedFileUrlFromBlobstore(request, "image");
 
+    postEntity.setProperty(DOG_NAME, request.getParameter(DOG_NAME));
     postEntity.setProperty(COMMENT_TEXT, request.getParameter(COMMENT_TEXT));
     postEntity.setProperty(TIMESTAMP, timestamp);
     postEntity.setProperty(IMAGE_URL, uploadURL);
@@ -81,12 +83,13 @@ public final class DoggoRedditServlet extends HttpServlet {
     List<FeedPost> posts = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
       
+      String dogName = (String) entity.getProperty(DOG_NAME);
       String commentText = (String) entity.getProperty(COMMENT_TEXT);
       String imageUrl = (String) entity.getProperty(IMAGE_URL);
       long timestamp = (long) entity.getProperty(TIMESTAMP);
       long id = entity.getKey().getId();
 
-      FeedPost post = new FeedPost(commentText, imageUrl, timestamp);
+      FeedPost post = new FeedPost(dogName, commentText, imageUrl, timestamp);
       posts.add(post);
     }
 

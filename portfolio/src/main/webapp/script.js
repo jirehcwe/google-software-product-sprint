@@ -56,34 +56,22 @@ function createListElement(text) {
   return liElement;
 }
 
-function createPostElement(postJson) {
-  const post = document.createElement("div");
+function createPostInDom(postJson) {
+  postFormat = `<div id='post-container'>
+                  <div id='post-header'>
+                    <p id='dogname-display'>${postJson.dogName}</p>
+                    <p id='date-display'>${new Date(postJson.timeStamp).toUTCString()}</p>
+                  </div>
+                  <div id='post-content'>
+                    <img src=${postJson.imageUrl} id='image-display'>
+                  </div>
+                  <div id='post-footer'>
+                  <p id='comment-display'>${postJson.commentText}</p>
+                  </div>
+                </div>
+                `
 
-  const postHeader = document.createElement("div");
-  post.appendChild(postHeader);
-  const usernameDisplay = document.createElement("p");
-  const timestampDisplay = document.createElement("p");
-  postHeader.appendChild(usernameDisplay);
-  postHeader.appendChild(timestampDisplay);
-
-  usernameDisplay.innerText = "user";
-  const timestamp = new Date(postJson.timeStamp);
-  timestampDisplay.innerText = timestamp.toUTCString();
-  const postContent = document.createElement("div");
-  post.appendChild(postContent);
-  const imageDisplay = document.createElement("img");
-  postContent.appendChild(imageDisplay);
-
-  imageDisplay.src = postJson.imageUrl;
-
-  const postFooter = document.createElement("div");
-  post.appendChild(postFooter);
-  const commentDisplay = document.createElement("p");
-  postFooter.appendChild(commentDisplay);
-
-  commentDisplay.innerText = postJson.commentText;
-
-  return post;
+  return postFormat;
 }
 
 function populateCommentSection(commentJson)
@@ -102,7 +90,7 @@ function populatePostsSection(postJson)
   postSection.innerHTML = '';
 
   postJson.forEach((post) => {
-    postSection.appendChild(createPostElement(post));
+    postSection.innerHTML += createPostInDom(post);
   });
 }
 
