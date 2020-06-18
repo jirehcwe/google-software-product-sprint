@@ -58,7 +58,7 @@ public final class DoggoRedditServlet extends HttpServlet {
 
     Entity postEntity = new Entity(FEED_POST);
     long timestamp = System.currentTimeMillis();
-    String uploadURL = getUploadedFileUrl(request, "image");
+    String uploadURL = getUploadedFileUrlFromBlobstore(request, "image");
 
     postEntity.setProperty(COMMENT_TEXT, request.getParameter(COMMENT_TEXT));
     postEntity.setProperty(TIMESTAMP, timestamp);
@@ -96,15 +96,10 @@ public final class DoggoRedditServlet extends HttpServlet {
     response.getWriter().println(gson.toJson(posts));
   }
 
-  private String getUploadedFileUrl(HttpServletRequest request, String formInputElementName) {
+  private String getUploadedFileUrlFromBlobstore(HttpServletRequest request, String formInputElementName) {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
     List<BlobKey> blobKeys = blobs.get(formInputElementName);
-
-    // User submitted form without selecting a file, so we can't get a URL. (dev server)
-    if (blobKeys == null || blobKeys.isEmpty()) {
-      return null;
-    }
 
     // Our form only contains a single file input, so get the first index.
     BlobKey blobKey = blobKeys.get(0);
