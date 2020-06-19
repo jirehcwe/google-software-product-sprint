@@ -1,6 +1,6 @@
 package com.google.sps.data;
 
-public final class FeedPost {
+public final class FeedPost implements Comparable<FeedPost>{
 
   private String dogName;
   private String imageUrl;
@@ -14,5 +14,15 @@ public final class FeedPost {
     timeStamp = inputTimeStamp;
     imageUrl = imageLink;
   }
+
+  public long GetTimeStamp() {
+    return timeStamp;
+  }
+
+
+  @Override
+    public int compareTo(FeedPost anotherPost) {
+      return (int)(this.timeStamp - anotherPost.GetTimeStamp());
+    }
   
 }

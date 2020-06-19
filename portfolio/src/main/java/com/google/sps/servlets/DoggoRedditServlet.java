@@ -31,6 +31,8 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.annotation.WebServlet;
@@ -49,19 +51,20 @@ public final class DoggoRedditServlet extends HttpServlet {
   static final String IMAGE_URL = "imageUrl";
   static final String FEED_POST = "FeedPost";
   static final String DOG_NAME = "dogName";
+  static
   Gson gson = new Gson();
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     Entity postEntity = new Entity(FEED_POST);
-    long timestamp = System.currentTimeMillis();
+    
+    String dogName = request.getParameter(DOG_NAME);
+    String comment = request.getParameter(COMMENT_TEXT);
     String uploadURL = getUploadedFileUrlFromBlobstore(request, "image");
-
-    postEntity.setProperty(DOG_NAME, request.getParameter(DOG_NAME));
-    postEntity.setProperty(COMMENT_TEXT, request.getParameter(COMMENT_TEXT));
-    postEntity.setProperty(TIMESTAMP, timestamp);
-    postEntity.setProperty(IMAGE_URL, uploadURL);
+    long timestamp = System.currentTimeMillis();
+    FeedPost newPost = new FeedPost(dogName, comment, uploadURL, timestamp);
+    postEntity.setProperty(FEED_POST, gson.toJson(newPost));
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(postEntity);
@@ -72,7 +75,7 @@ public final class DoggoRedditServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     
-    Query query = new Query(FEED_POST).addSort(TIMESTAMP, SortDirection.DESCENDING);
+    Query query = new Query(FEED_POST);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
@@ -80,16 +83,15 @@ public final class DoggoRedditServlet extends HttpServlet {
     List<FeedPost> posts = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
       
-      String dogName = (String) entity.getProperty(DOG_NAME);
-      String commentText = (String) entity.getProperty(COMMENT_TEXT);
-      String imageUrl = (String) entity.getProperty(IMAGE_URL);
-      long timestamp = (long) entity.getProperty(TIMESTAMP);
-      long id = entity.getKey().getId();
-
-      FeedPost post = new FeedPost(dogName, commentText, imageUrl, timestamp);
+      String postJson = (String) entity.getProperty(FEED_POST);
+      FeedPost post = gson.fromJson(postJson, FeedPost.class);
       posts.add(post);
+      System.out.println(postJson);
+      System.out.println(post);
     }
     
+    Collections.sort(posts, Collections.reverseOrder());
+
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(posts));
   }
