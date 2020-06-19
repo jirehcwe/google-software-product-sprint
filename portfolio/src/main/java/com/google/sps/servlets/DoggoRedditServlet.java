@@ -14,24 +14,20 @@
 
 package com.google.sps.servlets;
 
-import com.google.sps.data.FeedPost;
-import com.google.gson.Gson;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
-
-import com.google.appengine.api.blobstore.BlobInfo;
-import com.google.appengine.api.blobstore.BlobInfoFactory;
-import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ServingUrlOptions;
-
+import com.google.sps.data.FeedPost;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +49,7 @@ public final class DoggoRedditServlet extends HttpServlet {
   static final String IMAGE_URL = "imageUrl";
   static final String FEED_POST = "FeedPost";
   static final String DOG_NAME = "dogName";
+  Gson gson = new Gson();
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -92,9 +89,7 @@ public final class DoggoRedditServlet extends HttpServlet {
       FeedPost post = new FeedPost(dogName, commentText, imageUrl, timestamp);
       posts.add(post);
     }
-
-    Gson gson = new Gson();
-
+    
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(posts));
   }
