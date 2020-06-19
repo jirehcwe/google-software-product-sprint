@@ -1,5 +1,6 @@
 body {
   background-color: #f5f5f5;
+  font-family: system-ui, sans-serif;
 }
 
 #content {
@@ -43,7 +44,6 @@ img {
 
 #post-content {
   text-align: center;
-
 }
 
 #image-display {
@@ -62,6 +62,5 @@ img {
 }
 
 #comment-display {
-
   margin: 10px;
 }
