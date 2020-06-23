@@ -270,4 +270,28 @@ public final class FindMeetingQueryTest {
 
     Assert.assertEquals(expected, actual);
   }
+
+   @Test
+  public void sortByStartTime() {
+    Event event1 = new Event("Event 1", TimeRange.fromStartDuration(TIME_0830AM, DURATION_90_MINUTES),
+            Arrays.asList(PERSON_A));
+    Event event2 = new Event("Event 2", TimeRange.fromStartDuration(TIME_0900AM, DURATION_30_MINUTES),
+            Arrays.asList(PERSON_B));
+    Event event3 = new Event("Event 3", TimeRange.fromStartDuration(TIME_1000AM, DURATION_30_MINUTES),
+        Arrays.asList("Person C"));
+    Event event4 = new Event("Event 4", TimeRange.fromStartDuration(TIME_1100AM, DURATION_30_MINUTES),
+        Arrays.asList("Person D"));
+    Event event5 = new Event("Event 5", TimeRange.fromStartDuration(TimeRange.getTimeInMinutes(14, 00), DURATION_30_MINUTES),
+        Arrays.asList("Person E"));
+
+    Collection<Event> events = Arrays.asList(event2, event3, event1, event5, event4);
+    Collection<Event> expected = Arrays.asList(event1, event2, event3, event4, event5);
+
+    Collection<Event> actual = query.sortEventsByStartTime(events);
+
+    System.out.println("actual:" + actual);
+    System.out.println("expected:" + expected);
+
+    Assert.assertEquals(actual, expected);
+  }
 }

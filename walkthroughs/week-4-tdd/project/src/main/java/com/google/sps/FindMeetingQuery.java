@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -45,9 +46,28 @@ public final class FindMeetingQuery {
 
     for (Event event: events)
     {
-
+    
     }
     
     throw new UnsupportedOperationException("Not all cases were caught!");
+  }
+
+  class ByStartTimeComparator implements Comparator<Event> 
+  { 
+    // Used for sorting in ascending order of 
+    // roll name
+    @Override
+    public int compare(Event a, Event b) 
+    { 
+      return TimeRange.ORDER_BY_START.compare(a.getWhen(), b.getWhen());
+    } 
+  }
+
+  public Collection<Event> sortEventsByStartTime(Collection<Event> events)
+  {
+    List<Event> list = new ArrayList<Event>(events);
+
+    Collections.sort(list, new ByStartTimeComparator());
+    return list;
   }
 }
