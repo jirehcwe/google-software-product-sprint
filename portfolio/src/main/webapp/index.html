@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
   </head>
-  <body onload="displayComments()">
+  <body onload="displayPosts(); fetchBlobstoreUrlAndShowForm();">
     <div id="content" style = "text-align: center">
       <h1>Jireh's Portfolio</h1>
       <p>I'm creating this website as part of SPS (Software Product Sprint) 2020, and this is my first time writing in HTML/CSS/Javascript.</p>
@@ -37,26 +37,24 @@
             I'm the guy on the left, and my friend/project partner on the right. Try it out by clicking the picture. 
             Be warned, it's a fast-paced game that combines fast reaction time with puzzle/problem solving!
         </p>
-      <button onclick="getRandomGame()">Click here for a favourite game of mine!</button>
-      <div id="game-container"></div>
       
       <div id="comments-form">
-        <form action="/comments" method = "POST">
-          <label for="commentText">What do you think of my website?</label><br>
+        <form id="my-form" method = "POST" enctype="multipart/form-data">
+          <label for="image" required>Upload a cute doggo!</label><br>
+          <input type="file" name="image" required></input><br>
+          <label for="dogName" >What's this good boy's/girl's name?</label><br>
+          <input type="text" name="dogName"></input><br>
+          <label for="commentText">Describe the doggo you have uploaded.</label><br>
           <textarea id="commentText" name="commentText" placeholder="Comment goes here."></textarea>
           <br>
-          <input type="submit" value="Comment!">
+          
+          <input type="submit" value="Post dis doggo!"><br>
           <br>
         <form>
-      <div>
-      <div id="comments-container">
-        <ul id="comments-section">
-        </ul>
       </div>
 
-
-      <button onclick="addRandomGreeting()">Hello</button>
-      <div id="greeting-container"></div>
+      <div>
+      <div id="posts-section">
       
     </div>
   </body>

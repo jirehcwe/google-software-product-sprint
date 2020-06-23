@@ -11,59 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-const MEME_ID = 'Meme';
-
-function addRandomGreeting() 
-{
-  const greetings =
-      ['Hello world!', 'This is my first Javascript function.', 'Surprise meme!'];
-
-  // Choose a random greeting
-  const greetingNum = Math.floor(Math.random() * greetings.length);
-
-  // Add it to the page.
-  const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greetings[greetingNum];
-
-  // Show random meme if the 2nd index is hit.
-  if (greetingNum == 2)
-  {
-    showMeme();
-  }
-  else
-  {
-    removeMeme();
-  }
-}
-
-function showMeme() 
-{
-    //Prevents extra memes being created.
-    if (document.getElementById(MEME_ID) !== null)
-    {
-        return;
-    }
-
-    var img = document.createElement('img');
-    img.src = '/images/honest code.jpg';
-    img.style = 'text-align = center';
-    img.alt = 'Honest code.';
-    img.id = MEME_ID;
-
-    var content = document.getElementById('content');
-    content.appendChild(img);
-    
-    window.scrollTo(0,document.body.scrollHeight);
-}
-
-function removeMeme()
-{
-    var image = document.getElementById(MEME_ID);
-    if (image !== null)
-    {
-        image.parentNode.removeChild(image);
-    }
-}
 
 function getRandomGame()
 {
@@ -83,23 +30,21 @@ function addGameNameToDOM(gameName)
     document.getElementById('game-container').innerText = gameName;
 }
 
-function displayComments()
+function displayPosts()
 {  
-  fetch('/comments')
+  fetch('/doggo-servlet')
   .then(response => response.json())
-  .then(commentJson => {
-    if(commentJson.length != 0)
+  .then(postJson => {
+    if(postJson.length != 0)
     {
-      populateCommentSection(commentJson)
+      populatePostsSection(postJson);
     }
     else
     {
-      const commentsSection = document.getElementById('comments-section');
-      commentsSection.remove();
-      const commentContainer = document.getElementById('comments-container');
-      commentContainer.innerText = "No comments so far.";
+      const postsSection = document.getElementById('posts-section');
+      postsSection.innerText = "No posts so far.";
     }
-    
+   
     
   });
 
@@ -111,6 +56,24 @@ function createListElement(text) {
   return liElement;
 }
 
+function createPostInDom(postJson) {
+  postFormat = `<div id='post-container'>
+                  <div id='post-header'>
+                    <p id='dogname-display'>${postJson.dogName}</p>
+                    <p id='date-display'>${new Date(postJson.timeStamp).toUTCString()}</p>
+                  </div>
+                  <div id='post-content'>
+                    <img src=${postJson.imageUrl} id='image-display'>
+                  </div>
+                  <div id='post-footer'>
+                  <p id='comment-display'>${postJson.commentText}</p>
+                  </div>
+                </div>
+                `
+
+  return postFormat;
+}
+
 function populateCommentSection(commentJson)
 {
   const commentsSection = document.getElementById('comments-section');
@@ -119,4 +82,23 @@ function populateCommentSection(commentJson)
   commentJson.forEach((comment) => {
     commentsSection.appendChild(createListElement(comment.commentText));
   });
+}
+
+function populatePostsSection(postJson)
+{
+  const postSection = document.getElementById('posts-section');
+  postSection.innerHTML = '';
+
+  postJson.forEach((post) => {
+    postSection.innerHTML += createPostInDom(post);
+  });
+}
+
+function fetchBlobstoreUrlAndShowForm() {
+  fetch('/blobstore-image-upload')
+      .then((response) => response.text())
+      .then((imageUploadUrl) => {
+        const messageForm = document.getElementById('my-form');
+        messageForm.action = imageUploadUrl;
+      });
 }
