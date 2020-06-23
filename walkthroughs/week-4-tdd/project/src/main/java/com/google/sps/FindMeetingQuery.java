@@ -14,10 +14,27 @@
 
 package com.google.sps;
 
+import com.google.sps.MeetingRequest;
+import com.google.sps.TimeRange;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 
 public final class FindMeetingQuery {
+
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    throw new UnsupportedOperationException("TODO: Implement this method.");
+    
+    Collection<TimeRange> result;
+
+    //Return full day for trivial empty cases (no event given, no attendees given and invalid duration.
+    if (events.isEmpty() || request.getAttendees().isEmpty() || request.getDuration() <= 0)
+    {
+      return Arrays.asList(TimeRange.WHOLE_DAY);
+    }
+    
+    throw new UnsupportedOperationException("Not all cases were caught!");
   }
 }
