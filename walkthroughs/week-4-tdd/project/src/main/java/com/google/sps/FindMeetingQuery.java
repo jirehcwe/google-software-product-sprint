@@ -29,10 +29,23 @@ public final class FindMeetingQuery {
     
     Collection<TimeRange> result;
 
-    //Return full day for trivial empty cases (no event given, no attendees given and invalid duration.
-    if (events.isEmpty() || request.getAttendees().isEmpty() || request.getDuration() <= 0)
+    //Request is too long or too short(more than 1 day/negative duration)
+    if (request.getDuration() > TimeRange.WHOLE_DAY.duration() || request.getDuration() <= 0)
+    {
+      return Arrays.asList();
+    }
+
+    //Return full day for trivial empty cases (no event given, no attendees given)
+    if (events.isEmpty() || request.getAttendees().isEmpty())
     {
       return Arrays.asList(TimeRange.WHOLE_DAY);
+    }
+
+    
+
+    for (Event event: events)
+    {
+
     }
     
     throw new UnsupportedOperationException("Not all cases were caught!");
