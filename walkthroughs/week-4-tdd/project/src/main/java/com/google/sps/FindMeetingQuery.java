@@ -14,6 +14,7 @@
 
 package com.google.sps;
 
+import com.google.sps.Event;
 import com.google.sps.MeetingRequest;
 import com.google.sps.TimeRange;
 import java.util.ArrayList;
@@ -22,14 +23,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
+import java.util.Set;
+import java.lang.String;
 
 public final class FindMeetingQuery {
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     
-    Collection<TimeRange> result;
-
     //Request is too long or too short(more than 1 day/negative duration)
     if (request.getDuration() > TimeRange.WHOLE_DAY.duration() || request.getDuration() <= 0)
     {
@@ -42,14 +42,41 @@ public final class FindMeetingQuery {
       return Arrays.asList(TimeRange.WHOLE_DAY);
     }
 
+    events = sortEventsByStartTime(events);
     
+    Collection<TimeRange> results = new ArrayList<TimeRange>();
 
+    //Check across all events and deconflict against meeting attendee list and duration, populating the free timeslots in the process.
     for (Event event: events)
     {
-    
+      //Check if any requested meeting attendees are in the scheduled events
+      boolean isAttendeeInCurrentEvent = !Collections.disjoint(event.getAttendees(), request.getAttendees());
+
+      if (isAttendeeInCurrentEvent)
+      {
+        //Can't use current event timeslot since there are requested attendees
+        //that are in the current event. Split timings pre- and post- event.
+        TimeRange preEventAvailability = TimeRange.fromStartEnd(TimeRange.START_OF_DAY, event.getWhen().start(), false);
+        TimeRange postEventAvailability= TimeRange.fromStartEnd(event.getWhen().end(), TimeRange.END_OF_DAY, true);
+
+        if (!results.isEmpty()) //Add to current available timeslots without overriding current ones and resolving overlaps
+        {
+          addToAvailableSlotsSafely(results, preEventAvailability);
+          addToAvailableSlotsSafely(results, postEventAvailability);
+        } else //Can add pre- and post- event timeslots directly
+        {
+          results.add(preEventAvailability);
+          results.add(postEventAvailability);
+        }
+      
+        
+      } else
+      {
+        
+      }
     }
     
-    throw new UnsupportedOperationException("Not all cases were caught!");
+    return results;
   }
 
   class ByStartTimeComparator implements Comparator<Event> 
@@ -69,5 +96,10 @@ public final class FindMeetingQuery {
 
     Collections.sort(list, new ByStartTimeComparator());
     return list;
+  }
+
+  public void addToAvailableSlotsSafely(Collection<TimeRange> currentSlots, TimeRange rangeToAdd)
+  {
+
   }
 }
