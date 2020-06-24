@@ -271,7 +271,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-   @Test
+  @Test
   public void sortByStartTime() {
     Event event1 = new Event("Event 1", TimeRange.fromStartDuration(TIME_0830AM, DURATION_90_MINUTES),
             Arrays.asList(PERSON_A));
@@ -288,9 +288,6 @@ public final class FindMeetingQueryTest {
     Collection<Event> expected = Arrays.asList(event1, event2, event3, event4, event5);
 
     Collection<Event> actual = query.sortEventsByStartTime(events);
-
-    System.out.println("actual:" + actual);
-    System.out.println("expected:" + expected);
 
     Assert.assertEquals(actual, expected);
   }
