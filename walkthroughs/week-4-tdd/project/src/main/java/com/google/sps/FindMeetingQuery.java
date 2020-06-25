@@ -56,55 +56,49 @@ public final class FindMeetingQuery {
     ArrayList<TimeRange> candidateRanges = new ArrayList<TimeRange>();
 
     Iterator eventsIterator = events.iterator();
-    Event currentEvent = null;
-    Event previousEvent = null;
-    while (startTime != TimeRange.END_OF_DAY) { 
+    Event currentEvent = (Event)eventsIterator.next();
+    Event previousEvent = currentEvent;
+    while (startTime != TimeRange.END_OF_DAY) {       
+      
+      boolean areAttendeesInCurrentEvent = !Collections.disjoint(currentEvent.getAttendees(), request.getAttendees());
 
-      if (!eventsIterator.hasNext()){
-        TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, TimeRange.END_OF_DAY, true);
+      if (areAttendeesInCurrentEvent && currentEvent.getWhen().start() >= startTime ) // Available time is only up to when event starts.
+      { 
+        currentTime = currentEvent.getWhen().start();
+
+        TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, currentTime, false);
         if (potentialSlot.duration() >= requiredDuration)
         {
           candidateRanges.add(potentialSlot);
         }
+
+        startTime = currentEvent.getWhen().end();
+      }       
+      
+      if (eventsIterator.hasNext()) // Current event can be considered as available time. lookahead to next event.
+      {
+        currentEvent = (Event)eventsIterator.next();
+        if (previousEvent.getWhen().overlaps(currentEvent.getWhen()) && areAttendeesInCurrentEvent){ // Next event is intersecting and our start time needs to be set properly.
+          
+          // If the new event end is still during the previous event, we can set the new start time to the previous event's end, as that is a stricter bound.
+          // If the new event end is after the previous event, then we should consider the new event as per normal and start our timings from the start of the new event.
+          startTime = currentEvent.getWhen().end() < previousEvent.getWhen().end() ? previousEvent.getWhen().end() : currentEvent.getWhen().start();
+        }
+      } 
+      else // No events left, rest of time from startTime to end of day is free.
+      {
+        TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, TimeRange.END_OF_DAY, true);
+        if (potentialSlot.duration() >= requiredDuration)
+        {
+          candidateRanges.add(potentialSlot);
+          startTime = TimeRange.END_OF_DAY;
+        }
         break;
       }
-
-      currentEvent = (Event)eventsIterator.next();
-
-      boolean areAttendeesInCurrentEvent = !Collections.disjoint(currentEvent.getAttendees(), request.getAttendees());
-
-      if (areAttendeesInCurrentEvent)
-      {
-        currentTime = currentEvent.getWhen().start(); 
-      } else 
-      {
-        continue; // We can take this timeslot as available and hence we look ahead to the next event.
-      }
-
-      //        start, current
-      //             v
-      // Timeline  : |--A-----|-------->
-      if (startTime == currentTime)
-      {
-        startTime = currentEvent.getWhen().end();
-        currentTime = currentEvent.getWhen().end();
-        continue; //Look ahead to next event
-      }
-
-      //           start     current
-      //             v          v
-      // Timeline  : |----------|-----A-----|-------->
-      // Free time in between is potential range
-
-      TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, currentTime, false);
-      if (potentialSlot.duration() >= requiredDuration)
-      {
-        candidateRanges.add(potentialSlot);
-      }
-
-      startTime = currentEvent.getWhen().end();
-      currentTime = currentEvent.getWhen().end();
+      
     }
+
+    
     
     return candidateRanges;
   }
