@@ -22,9 +22,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.lang.String;
+
+import java.io.*; 
 
 public final class FindMeetingQuery {
 
@@ -43,40 +48,69 @@ public final class FindMeetingQuery {
     }
 
     events = sortEventsByStartTime(events);
+
+    System.out.println("Sorted, now processing across events");
+
+    int requiredDuration = (int)request.getDuration(); // Can cast as such because duration does not exceed 2^32.
+    Collection<String> requiredAttendees = request.getAttendees();
     
-    Collection<TimeRange> results = new ArrayList<TimeRange>();
+    int currentTime = TimeRange.START_OF_DAY;
+    int startTime = TimeRange.START_OF_DAY;
+    
+    ArrayList<TimeRange> candidateRanges = new ArrayList<TimeRange>();
 
-    //Check across all events and deconflict against meeting attendee list and duration, populating the free timeslots in the process.
-    for (Event event: events)
-    {
-      //Check if any requested meeting attendees are in the scheduled events
-      boolean isAttendeeInCurrentEvent = !Collections.disjoint(event.getAttendees(), request.getAttendees());
+    Iterator eventsIterator = events.iterator();
+    Event currentEvent = null;
+    Event previousEvent = null;
+    while (startTime != TimeRange.END_OF_DAY) { 
 
-      if (isAttendeeInCurrentEvent)
-      {
-        //Can't use current event timeslot since there are requested attendees
-        //that are in the current event. Split timings pre- and post- event.
-        TimeRange preEventAvailability = TimeRange.fromStartEnd(TimeRange.START_OF_DAY, event.getWhen().start(), false);
-        TimeRange postEventAvailability= TimeRange.fromStartEnd(event.getWhen().end(), TimeRange.END_OF_DAY, true);
-
-        if (!results.isEmpty()) //Add to current available timeslots without overriding current ones and resolving overlaps
+      if (!eventsIterator.hasNext()){
+        TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, TimeRange.END_OF_DAY, true);
+        if (potentialSlot.duration() >= requiredDuration)
         {
-          addToAvailableSlotsSafely(results, preEventAvailability);
-          addToAvailableSlotsSafely(results, postEventAvailability);
-        } else //Can add pre- and post- event timeslots directly
-        {
-          results.add(preEventAvailability);
-          results.add(postEventAvailability);
+          candidateRanges.add(potentialSlot);
+          break;
         }
-      
-        
-      } else
-      {
-        
       }
+
+      currentEvent = (Event)eventsIterator.next();
+
+      boolean areAttendeesInCurrentEvent = !Collections.disjoint(currentEvent.getAttendees(), request.getAttendees());
+
+      if (areAttendeesInCurrentEvent)
+      {
+        currentTime = currentEvent.getWhen().start(); 
+      } else 
+      {
+        continue; //We can take this timeslot as available and hence we look ahead to the next event.
+      }
+
+      //        start, current
+      //             v
+      // Timeline  : |--A-----|-------->
+      if (startTime == currentTime)
+      {
+        startTime = currentEvent.getWhen().end();
+        currentTime = currentEvent.getWhen().end();
+        continue; //Look ahead to next event
+      }
+
+      //           start     current
+      //             v          v
+      // Timeline  : |----------|-----A-----|-------->
+      // Free time in between is potential range
+
+      TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, currentTime, false);
+      if (potentialSlot.duration() >= requiredDuration)
+      {
+        candidateRanges.add(potentialSlot);
+      }
+
+      startTime = currentEvent.getWhen().end();
+      currentTime = currentEvent.getWhen().end();
     }
     
-    return results;
+    return candidateRanges;
   }
 
   class ByStartTimeComparator implements Comparator<Event> 
@@ -96,10 +130,5 @@ public final class FindMeetingQuery {
 
     Collections.sort(list, new ByStartTimeComparator());
     return list;
-  }
-
-  public void addToAvailableSlotsSafely(Collection<TimeRange> currentSlots, TimeRange rangeToAdd)
-  {
-
   }
 }
