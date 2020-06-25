@@ -29,27 +29,23 @@ import java.util.Map;
 import java.util.Set;
 import java.lang.String;
 
-import java.io.*; 
-
 public final class FindMeetingQuery {
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     
-    //Request is too long or too short(more than 1 day/negative duration)
+    // Request is too long or too short(more than 1 day/negative duration)
     if (request.getDuration() > TimeRange.WHOLE_DAY.duration() || request.getDuration() <= 0)
     {
       return Arrays.asList();
     }
 
-    //Return full day for trivial empty cases (no event given, no attendees given)
+    // Return full day for trivial empty cases (no event given, no attendees given)
     if (events.isEmpty() || request.getAttendees().isEmpty())
     {
       return Arrays.asList(TimeRange.WHOLE_DAY);
     }
 
     events = sortEventsByStartTime(events);
-
-    System.out.println("Sorted, now processing across events");
 
     int requiredDuration = (int)request.getDuration(); // Can cast as such because duration does not exceed 2^32.
     Collection<String> requiredAttendees = request.getAttendees();
@@ -69,8 +65,8 @@ public final class FindMeetingQuery {
         if (potentialSlot.duration() >= requiredDuration)
         {
           candidateRanges.add(potentialSlot);
-          break;
         }
+        break;
       }
 
       currentEvent = (Event)eventsIterator.next();
@@ -82,7 +78,7 @@ public final class FindMeetingQuery {
         currentTime = currentEvent.getWhen().start(); 
       } else 
       {
-        continue; //We can take this timeslot as available and hence we look ahead to the next event.
+        continue; // We can take this timeslot as available and hence we look ahead to the next event.
       }
 
       //        start, current
