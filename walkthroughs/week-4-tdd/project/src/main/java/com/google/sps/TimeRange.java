@@ -127,7 +127,7 @@ public final class TimeRange {
 
   @Override
   public int hashCode() {
-    return Long.hashCode(start) ^ Long.hashCode(duration);
+    return Long.hashCode(start) ^ Long.hashCode(duration) ^ Long.hashCode(start);
   }
 
   @Override
