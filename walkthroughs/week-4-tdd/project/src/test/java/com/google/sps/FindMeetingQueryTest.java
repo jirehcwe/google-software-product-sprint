@@ -175,6 +175,33 @@ public final class FindMeetingQueryTest {
   }
 
   @Test
+  public void nestedUnrelatedEvents() {
+    // Have an event for each person, but have one person's event fully contain another's event. We
+    // should see two options, ignoring the person that is not required in the meeting.
+    //
+    // Events  :       |----A----|
+    //                   |--B--|
+    // Day     : |---------------------|
+    // Options : |--1--|         |--2--|
+
+    Collection<Event> events = Arrays.asList(
+        new Event("Event 1", TimeRange.fromStartDuration(TIME_0830AM, DURATION_90_MINUTES),
+            Arrays.asList(PERSON_A)),
+        new Event("Event 2", TimeRange.fromStartDuration(TIME_0900AM, DURATION_30_MINUTES),
+            Arrays.asList(PERSON_B)));
+
+    MeetingRequest request =
+        new MeetingRequest(Arrays.asList(PERSON_B), DURATION_30_MINUTES);
+
+    Collection<TimeRange> actual = query.query(events, request);
+    Collection<TimeRange> expected =
+        Arrays.asList(TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0900AM, false),
+            TimeRange.fromStartEnd(TIME_0930AM, TimeRange.END_OF_DAY, true));
+
+    Assert.assertEquals(expected, actual);
+  }
+
+  @Test
   public void doubleBookedPeople() {
     // Have one person, but have them registered to attend two events at the same time.
     //
