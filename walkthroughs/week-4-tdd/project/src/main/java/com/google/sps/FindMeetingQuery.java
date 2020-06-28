@@ -32,6 +32,12 @@ public final class FindMeetingQuery {
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
 
+    // Request is too long or too short(more than 1 day/negative duration)
+    if (request.getDuration() > TimeRange.WHOLE_DAY.duration() || request.getDuration() <= 0)
+    {
+      return Arrays.asList();
+    }
+
     Collection<String> requiredAttendees = request.getAttendees();
 
     List<Event> relevantEvents = events
@@ -40,11 +46,7 @@ public final class FindMeetingQuery {
                                   .sorted((a, b) -> TimeRange.ORDER_BY_START.compare(a.getWhen(), b.getWhen()))
                                   .collect(Collectors.toList());
     
-    // Request is too long or too short(more than 1 day/negative duration)
-    if (request.getDuration() > TimeRange.WHOLE_DAY.duration() || request.getDuration() <= 0)
-    {
-      return Arrays.asList();
-    }
+
 
     // Return full day for trivial empty cases (no event given, no attendees given)
     if (relevantEvents.isEmpty() || request.getAttendees().isEmpty())
