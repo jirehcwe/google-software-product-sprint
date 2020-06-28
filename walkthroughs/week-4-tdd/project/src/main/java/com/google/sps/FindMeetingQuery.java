@@ -24,11 +24,21 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream; 
 import java.io.*;
 
 public final class FindMeetingQuery {
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+
+    Collection<String> requiredAttendees = request.getAttendees();
+
+    List<Event> relevantEvents = events
+                                  .stream()
+                                  .sorted((a, b) -> TimeRange.ORDER_BY_START.compare(a.getWhen(), b.getWhen()))
+                                  .filter(event -> !Collections.disjoint(event.getAttendees(), requiredAttendees))
+                                  .collect(Collectors.toList());
     
     // Request is too long or too short(more than 1 day/negative duration)
     if (request.getDuration() > TimeRange.WHOLE_DAY.duration() || request.getDuration() <= 0)
@@ -37,19 +47,16 @@ public final class FindMeetingQuery {
     }
 
     // Return full day for trivial empty cases (no event given, no attendees given)
-    if (events.isEmpty() || request.getAttendees().isEmpty())
+    if (relevantEvents.isEmpty() || request.getAttendees().isEmpty())
     {
       return Arrays.asList(TimeRange.WHOLE_DAY);
     }
 
-    events = sortEventsByStartTime(events);
-
     int requiredDuration = (int)request.getDuration(); // Can cast as such because duration does not exceed 2^32.
-    Collection<String> requiredAttendees = request.getAttendees();
-
+    
     ArrayList<TimeRange> candidateRanges = new ArrayList<TimeRange>();
 
-    Iterator eventsIterator = events.iterator();
+    Iterator eventsIterator = relevantEvents.iterator();
     Event currentEvent = (Event)eventsIterator.next();
     Event previousEvent = currentEvent;
     int currentTime = TimeRange.START_OF_DAY;
@@ -57,21 +64,17 @@ public final class FindMeetingQuery {
     
     while (true) 
     {
+      currentTime = currentEvent.getWhen().start(); // Available time is only up to when event starts, since there are clashing attendees.
 
-      boolean attendeesIncludedInCurrentEvent = !Collections.disjoint(currentEvent.getAttendees(), request.getAttendees());
-      
-      if (attendeesIncludedInCurrentEvent) 
-      { 
-        currentTime = currentEvent.getWhen().start(); // Available time is only up to when event starts, since there are clashing attendees.
+      TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, currentTime, false);
 
-        TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, currentTime, false);
-        if (potentialSlot.duration() >= requiredDuration)
-        {
-          candidateRanges.add(potentialSlot);
-        }
-
-       startTime = setStartTimeBasedOnPreviousEvent(previousEvent, currentEvent, request);
+      if (potentialSlot.duration() >= requiredDuration)
+      {
+        candidateRanges.add(potentialSlot);
       }
+
+      //Update start time
+      startTime = Math.max(currentEvent.getWhen().end(), previousEvent.getWhen().end());
 
       // Check for next event
       if (eventsIterator.hasNext())
@@ -82,7 +85,7 @@ public final class FindMeetingQuery {
       }
 
       // Terminate loop
-      TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, TimeRange.END_OF_DAY, true);
+      potentialSlot = TimeRange.fromStartEnd(startTime, TimeRange.END_OF_DAY, true);
       if (potentialSlot.duration() >= requiredDuration)
       {
         candidateRanges.add(potentialSlot);
@@ -95,23 +98,4 @@ public final class FindMeetingQuery {
     return candidateRanges;
   }
 
-  public Collection<Event> sortEventsByStartTime(Collection<Event> events)
-  {
-    List<Event> list = new ArrayList<Event>(events);
-
-    Collections.sort(list, (a, b) -> TimeRange.ORDER_BY_START.compare(a.getWhen(), b.getWhen()));
-    return list;
-  }
-
-  private int setStartTimeBasedOnPreviousEvent(Event prevEvent, Event currEvent, MeetingRequest request)
-  {
-    boolean attendeesNotIncludedInPreviousEvent = Collections.disjoint(prevEvent.getAttendees(), request.getAttendees());
-
-    if (attendeesNotIncludedInPreviousEvent)
-    {
-      return currEvent.getWhen().end();
-    }
-
-    return Math.max(currEvent.getWhen().end(), prevEvent.getWhen().end());
-  }
 }
