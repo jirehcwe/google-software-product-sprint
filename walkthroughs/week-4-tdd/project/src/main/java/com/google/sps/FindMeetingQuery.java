@@ -36,8 +36,8 @@ public final class FindMeetingQuery {
 
     List<Event> relevantEvents = events
                                   .stream()
-                                  .sorted((a, b) -> TimeRange.ORDER_BY_START.compare(a.getWhen(), b.getWhen()))
                                   .filter(event -> !Collections.disjoint(event.getAttendees(), requiredAttendees))
+                                  .sorted((a, b) -> TimeRange.ORDER_BY_START.compare(a.getWhen(), b.getWhen()))
                                   .collect(Collectors.toList());
     
     // Request is too long or too short(more than 1 day/negative duration)
