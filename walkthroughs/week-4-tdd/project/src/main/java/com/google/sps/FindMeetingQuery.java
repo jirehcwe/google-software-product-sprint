@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.lang.String;
+import java.io.*;
 
 public final class FindMeetingQuery {
 
@@ -49,22 +50,22 @@ public final class FindMeetingQuery {
 
     int requiredDuration = (int)request.getDuration(); // Can cast as such because duration does not exceed 2^32.
     Collection<String> requiredAttendees = request.getAttendees();
-    
-    int currentTime = TimeRange.START_OF_DAY;
-    int startTime = TimeRange.START_OF_DAY;
-    
+
     ArrayList<TimeRange> candidateRanges = new ArrayList<TimeRange>();
 
     Iterator eventsIterator = events.iterator();
     Event currentEvent = (Event)eventsIterator.next();
     Event previousEvent = currentEvent;
-    while (startTime != TimeRange.END_OF_DAY) {       
-      
-      boolean areAttendeesInCurrentEvent = !Collections.disjoint(currentEvent.getAttendees(), request.getAttendees());
+    int currentTime = TimeRange.START_OF_DAY;
+    int startTime = TimeRange.START_OF_DAY;
+    
+    while (true) {
 
-      if (areAttendeesInCurrentEvent && currentEvent.getWhen().start() >= startTime ) // Available time is only up to when event starts.
+      boolean attendeesNotIncludedInCurrentEvent = Collections.disjoint(currentEvent.getAttendees(), request.getAttendees());
+      
+      if (attendeesNotIncludedInCurrentEvent == false) 
       { 
-        currentTime = currentEvent.getWhen().start();
+        currentTime = currentEvent.getWhen().start(); // Available time is only up to when event starts, since there are clashing attendees.
 
         TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, currentTime, false);
         if (potentialSlot.duration() >= requiredDuration)
@@ -72,34 +73,29 @@ public final class FindMeetingQuery {
           candidateRanges.add(potentialSlot);
         }
 
-        startTime = currentEvent.getWhen().end();
-      }       
-      
-      if (eventsIterator.hasNext()) // Current event can be considered as available time. lookahead to next event.
+       startTime = setStartTimeBasedOnPreviousEvent(previousEvent, currentEvent, request);
+      }
+
+      // Check for next event
+      if (eventsIterator.hasNext())
       {
+        previousEvent = currentEvent;
         currentEvent = (Event)eventsIterator.next();
-        if (previousEvent.getWhen().overlaps(currentEvent.getWhen()) && areAttendeesInCurrentEvent){ // Next event is intersecting and our start time needs to be set properly.
-          
-          // If the new event end is still during the previous event, we can set the new start time to the previous event's end, as that is a stricter bound.
-          // If the new event end is after the previous event, then we should consider the new event as per normal and start our timings from the start of the new event.
-          startTime = currentEvent.getWhen().end() < previousEvent.getWhen().end() ? previousEvent.getWhen().end() : currentEvent.getWhen().start();
-        }
-      } 
-      else // No events left, rest of time from startTime to end of day is free.
+        continue;
+      }
+      else // Terminate
       {
         TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, TimeRange.END_OF_DAY, true);
         if (potentialSlot.duration() >= requiredDuration)
         {
           candidateRanges.add(potentialSlot);
-          startTime = TimeRange.END_OF_DAY;
         }
+      
         break;
       }
       
     }
 
-    
-    
     return candidateRanges;
   }
 
@@ -109,5 +105,23 @@ public final class FindMeetingQuery {
 
     Collections.sort(list, (a, b) -> TimeRange.ORDER_BY_START.compare(a.getWhen(), b.getWhen()));
     return list;
+  }
+
+  private int setStartTimeBasedOnPreviousEvent(Event prevEvent, Event currEvent, MeetingRequest request)
+  {
+    boolean previousEventIsOverlapping = prevEvent != currEvent && prevEvent.getWhen().overlaps(currEvent.getWhen());
+    boolean attendeesNotIncludedInPreviousEvent = Collections.disjoint(prevEvent.getAttendees(), request.getAttendees());
+
+    if (attendeesNotIncludedInPreviousEvent)
+    {
+      return currEvent.getWhen().end();
+    }
+
+    if (previousEventIsOverlapping) {
+      return Math.max(currEvent.getWhen().end(),prevEvent.getWhen().end());
+    }
+
+    // Not overlapping, previous event is irrelevant
+    return currEvent.getWhen().end();    
   }
 }
