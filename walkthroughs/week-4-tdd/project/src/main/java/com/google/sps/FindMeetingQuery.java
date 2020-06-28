@@ -22,12 +22,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.lang.String;
 import java.io.*;
 
 public final class FindMeetingQuery {
@@ -59,11 +55,12 @@ public final class FindMeetingQuery {
     int currentTime = TimeRange.START_OF_DAY;
     int startTime = TimeRange.START_OF_DAY;
     
-    while (true) {
+    while (true) 
+    {
 
-      boolean attendeesNotIncludedInCurrentEvent = Collections.disjoint(currentEvent.getAttendees(), request.getAttendees());
+      boolean attendeesIncludedInCurrentEvent = !Collections.disjoint(currentEvent.getAttendees(), request.getAttendees());
       
-      if (attendeesNotIncludedInCurrentEvent == false) 
+      if (attendeesIncludedInCurrentEvent) 
       { 
         currentTime = currentEvent.getWhen().start(); // Available time is only up to when event starts, since there are clashing attendees.
 
@@ -83,16 +80,15 @@ public final class FindMeetingQuery {
         currentEvent = (Event)eventsIterator.next();
         continue;
       }
-      else // Terminate
+
+      // Terminate loop
+      TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, TimeRange.END_OF_DAY, true);
+      if (potentialSlot.duration() >= requiredDuration)
       {
-        TimeRange potentialSlot = TimeRange.fromStartEnd(startTime, TimeRange.END_OF_DAY, true);
-        if (potentialSlot.duration() >= requiredDuration)
-        {
-          candidateRanges.add(potentialSlot);
-        }
-      
-        break;
+        candidateRanges.add(potentialSlot);
       }
+    
+      break;
       
     }
 
@@ -109,7 +105,6 @@ public final class FindMeetingQuery {
 
   private int setStartTimeBasedOnPreviousEvent(Event prevEvent, Event currEvent, MeetingRequest request)
   {
-    boolean previousEventIsOverlapping = prevEvent != currEvent && prevEvent.getWhen().overlaps(currEvent.getWhen());
     boolean attendeesNotIncludedInPreviousEvent = Collections.disjoint(prevEvent.getAttendees(), request.getAttendees());
 
     if (attendeesNotIncludedInPreviousEvent)
@@ -117,11 +112,6 @@ public final class FindMeetingQuery {
       return currEvent.getWhen().end();
     }
 
-    if (previousEventIsOverlapping) {
-      return Math.max(currEvent.getWhen().end(),prevEvent.getWhen().end());
-    }
-
-    // Not overlapping, previous event is irrelevant
-    return currEvent.getWhen().end();    
+    return Math.max(currEvent.getWhen().end(), prevEvent.getWhen().end());
   }
 }
